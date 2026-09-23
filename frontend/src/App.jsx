@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import api from './api/axios';
+import './App.css';
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -31,16 +32,32 @@ function Profile() {
     navigate('/login');
   };
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="auth-container">Загрузка...</div>;
+  if (error) return <div className="auth-container"><div className="card">{error}</div></div>;
 
   return (
-    <div>
-      <h1>Профиль пользователя</h1>
-      <p>ID: {user.id}</p>
-      <p>Username: {user.username}</p>
-      <p>Email: {user.email}</p>
-      <button onClick={handleLogout}>Выйти</button>
+    <div className="auth-container">
+      <div className="card">
+        <h1>Профиль</h1>
+        <p className="subtitle">Информация о вашем аккаунте</p>
+        
+        <div className="profile-info">
+          <div className="profile-item">
+            <div className="profile-label">ID</div>
+            <div className="profile-value">{user.id}</div>
+          </div>
+          <div className="profile-item">
+            <div className="profile-label">Имя пользователя</div>
+            <div className="profile-value">{user.username}</div>
+          </div>
+          <div className="profile-item">
+            <div className="profile-label">Email</div>
+            <div className="profile-value">{user.email}</div>
+          </div>
+        </div>
+
+        <button onClick={handleLogout}>Выйти</button>
+      </div>
     </div>
   );
 }

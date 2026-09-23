@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../validation/authSchemas';
@@ -25,26 +25,37 @@ export default function LoginForm() {
       localStorage.setItem('refresh_token', response.data.refresh);
 
       navigate('/profile');
-    } catch (error) {
+    } catch {
       setMessage('Ошибка авторизации. Проверьте имя пользователя и пароль.');
-      console.error(error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>Username:</label>
-        <input type="text" {...register('username')} />
-        {errors.username && <p>{errors.username.message}</p>}
+    <div className="auth-container">
+      <div className="card">
+        <h1>Вход</h1>
+        <p className="subtitle">Войдите в свой аккаунт</p>
+        
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <label>Имя пользователя</label>
+            <input type="text" {...register('username')} />
+            {errors.username && <p className="error-text">{errors.username.message}</p>}
+          </div>
+          <div className="form-group">
+            <label>Пароль</label>
+            <input type="password" {...register('password')} />
+            {errors.password && <p className="error-text">{errors.password.message}</p>}
+          </div>
+          <button type="submit">Войти</button>
+        </form>
+
+        {message && <p className="message">{message}</p>}
+        
+        <div className="message">
+          Нет аккаунта? <Link to="/register" className="link">Зарегистрироваться</Link>
+        </div>
       </div>
-      <div>
-        <label>Password:</label>
-        <input type="password" {...register('password')} />
-        {errors.password && <p>{errors.password.message}</p>}
-      </div>
-      <button type="submit">Войти</button>
-      {message && <p>{message}</p>}
-    </form>
+    </div>
   );
 }
