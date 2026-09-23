@@ -1,28 +1,26 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { registerSchema } from '../validation/authSchemas';
 import api from '../api/axios';
 
 export default function RegisterForm() {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
   });
   const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setMessage('');
     try {
-      await api.post('auth/register/', formData);
+      await api.post('auth/register/', data);
       setMessage('Регистрация прошла успешно!');
-      setFormData({ username: '', email: '', password: '' });
+      reset();
     } catch (error) {
       setMessage('Ошибка при регистрации. Попробуйте снова.');
       console.error(error);
@@ -30,36 +28,21 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label>Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" {...register('username')} />
+        {errors.username && <p>{errors.username.message}</p>}
       </div>
       <div>
         <label>Email:</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <input type="email" {...register('email')} />
+        {errors.email && <p>{errors.email.message}</p>}
       </div>
       <div>
         <label>Password:</label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+        <input type="password" {...register('password')} />
+        {errors.password && <p>{errors.password.message}</p>}
       </div>
       <button type="submit">Зарегистрироваться</button>
       {message && <p>{message}</p>}

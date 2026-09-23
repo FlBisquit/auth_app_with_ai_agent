@@ -1,31 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../validation/authSchemas';
 import api from '../api/axios';
 
 export default function LoginForm() {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
   });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setMessage('');
     try {
-      const response = await api.post('auth/login/', formData);
-      
+      const response = await api.post('auth/login/', data);
+
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
-      
+
       navigate('/profile');
     } catch (error) {
       setMessage('Ошибка авторизации. Проверьте имя пользователя и пароль.');
@@ -34,26 +32,16 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label>Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" {...register('username')} />
+        {errors.username && <p>{errors.username.message}</p>}
       </div>
       <div>
         <label>Password:</label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+        <input type="password" {...register('password')} />
+        {errors.password && <p>{errors.password.message}</p>}
       </div>
       <button type="submit">Войти</button>
       {message && <p>{message}</p>}
