@@ -16,7 +16,7 @@ function Profile() {
       try {
         const response = await api.get('auth/me/');
         setUser(response.data);
-      } catch (err) {
+      } catch {
         setError('Ошибка при загрузке профиля');
       } finally {
         setLoading(false);
