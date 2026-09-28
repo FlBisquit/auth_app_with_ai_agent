@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, Outlet } from 'react-router-dom';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import MainLayout from './components/Layout/MainLayout';
 import './App.css';
 
 function Profile() {
@@ -18,28 +19,26 @@ function Profile() {
   if (!user) return <div className="auth-container"><div className="card">Ошибка при загрузке профиля</div></div>;
 
   return (
-    <div className="auth-container">
-      <div className="card">
-        <h1>Профиль</h1>
-        <p className="subtitle">Информация о вашем аккаунте</p>
-        
-        <div className="profile-info">
-          <div className="profile-item">
-            <div className="profile-label">ID</div>
-            <div className="profile-value">{user.id}</div>
-          </div>
-          <div className="profile-item">
-            <div className="profile-label">Имя пользователя</div>
-            <div className="profile-value">{user.username}</div>
-          </div>
-          <div className="profile-item">
-            <div className="profile-label">Email</div>
-            <div className="profile-value">{user.email}</div>
-          </div>
+    <div className="card">
+      <h1>Профиль</h1>
+      <p className="subtitle">Информация о вашем аккаунте</p>
+      
+      <div className="profile-info">
+        <div className="profile-item">
+          <div className="profile-label">ID</div>
+          <div className="profile-value">{user.id}</div>
         </div>
-
-        <button onClick={handleLogout}>Выйти</button>
+        <div className="profile-item">
+          <div className="profile-label">Имя пользователя</div>
+          <div className="profile-value">{user.username}</div>
+        </div>
+        <div className="profile-item">
+          <div className="profile-label">Email</div>
+          <div className="profile-value">{user.email}</div>
+        </div>
       </div>
+
+      <button onClick={handleLogout}>Выйти</button>
     </div>
   );
 }
@@ -51,15 +50,14 @@ function App() {
         <Routes>
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<LoginForm />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<div className="card">Dashboard (Скоро)</div>} />
+            <Route path="/about" element={<div className="card">О нас (Скоро)</div>} />
+            <Route path="/settings" element={<div className="card">Настройки (Скоро)</div>} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
