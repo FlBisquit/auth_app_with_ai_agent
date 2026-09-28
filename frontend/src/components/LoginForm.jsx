@@ -9,15 +9,18 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(loginSchema),
+    mode: 'onChange',
   });
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     setMessage('');
+    setIsLoading(true);
     try {
       const response = await api.post('auth/login/', data);
 
@@ -27,6 +30,8 @@ export default function LoginForm() {
       navigate('/profile');
     } catch {
       setMessage('Ошибка авторизации. Проверьте имя пользователя и пароль.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +52,9 @@ export default function LoginForm() {
             <input type="password" {...register('password')} />
             {errors.password && <p className="error-text">{errors.password.message}</p>}
           </div>
-          <button type="submit">Войти</button>
+          <button type="submit" disabled={isLoading || !isValid}>
+            {isLoading ? 'Загрузка...' : 'Войти'}
+          </button>
         </form>
 
         {message && <p className="message">{message}</p>}

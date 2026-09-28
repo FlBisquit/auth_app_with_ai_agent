@@ -10,20 +10,25 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
   });
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data) => {
     setMessage('');
+    setIsLoading(true);
     try {
       await api.post('auth/register/', data);
       setMessage('Регистрация прошла успешно!');
       reset();
     } catch {
       setMessage('Ошибка при регистрации. Попробуйте снова.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,7 +54,9 @@ export default function RegisterForm() {
             <input type="password" {...register('password')} />
             {errors.password && <p className="error-text">{errors.password.message}</p>}
           </div>
-          <button type="submit">Зарегистрироваться</button>
+          <button type="submit" disabled={isLoading || !isValid}>
+            {isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
+          </button>
         </form>
 
         {message && <p className="message">{message}</p>}
