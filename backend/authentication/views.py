@@ -2,12 +2,17 @@ from django.contrib.auth.models import User
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import RegisterSerializer, UserSerializer, UserProfileSerializer
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = []  # Отключаем проверку токена для регистрации
     serializer_class = RegisterSerializer
+
+class LoginView(TokenObtainPairView):
+    authentication_classes = []  # Отключаем проверку токена для логина
 
 class UserProfileView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
