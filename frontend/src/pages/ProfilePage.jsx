@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
-  const navigate = useNavigate();
 
-  const [bio, setBio] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  if (loading) return <div className="auth-container">Загрузка...</div>;
+  if (!user) return <div className="auth-container"><div className="card">Ошибка при загрузке профиля</div></div>;
+
+  return <ProfileContent user={user} logout={logout} />;
+}
+
+function ProfileContent({ user, logout }) {
+  const navigate = useNavigate();
+  const [bio, setBio] = useState(user.bio || '');
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [imgError, setImgError] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setBio(user.bio || '');
-      setAvatarUrl(user.avatar_url || '');
-    }
-  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -38,22 +38,24 @@ export default function ProfilePage() {
         avatar_url: avatarUrl,
       });
       
-      // Обновляем локальное состояние данными от сервера
       setBio(response.data.bio || '');
       setAvatarUrl(response.data.avatar_url || '');
-      setImgError(false); // Сбрасываем ошибку изображения при обновлении URL
+      setImgError(false);
       
       setMessage('Профиль успешно обновлен');
       setTimeout(() => setMessage(''), 3000);
-    } catch (err) {
-      setError('Ошибка при сохранении профиля. Попробуйте позже.');
+    } catch (error) {
+      if (error.response?.data) {
+        const errors = error.response.data;
+        const errorMsg = errors.bio || errors.avatar_url || 'Ошибка при сохранении профиля.';
+        setError(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
+      } else {
+        setError('Ошибка при сохранении профиля. Попробуйте позже.');
+      }
     } finally {
       setIsSaving(false);
     }
   };
-
-  if (loading) return <div className="auth-container">Загрузка...</div>;
-  if (!user) return <div className="auth-container"><div className="card">Ошибка при загрузке профиля</div></div>;
 
   return (
     <div className="auth-container">
@@ -70,7 +72,7 @@ export default function ProfilePage() {
             />
           ) : (
             <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold' }}>
-              {user.username.charAt(0).toUpperCase()}
+              {user.username?.charAt(0).toUpperCase() || '?'}
             </div>
           )}
         </div>
