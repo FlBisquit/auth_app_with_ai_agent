@@ -1,9 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import MainLayout from './components/Layout/MainLayout';
+import Dashboard from './components/Dashboard';
+import About from './components/About';
+import Settings from './components/Settings';
 import './App.css';
 
 function Profile() {
@@ -52,10 +55,10 @@ function App() {
           <Route path="/login" element={<LoginForm />} />
           
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard" element={<div className="card">Dashboard (Скоро)</div>} />
-            <Route path="/about" element={<div className="card">О нас (Скоро)</div>} />
-            <Route path="/settings" element={<div className="card">Настройки (Скоро)</div>} />
+            <Route path="/about" element={<About />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>

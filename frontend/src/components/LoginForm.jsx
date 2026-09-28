@@ -27,7 +27,7 @@ export default function LoginForm() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
-      navigate('/profile');
+      navigate('/dashboard');
     } catch {
       setMessage('Ошибка авторизации. Проверьте имя пользователя и пароль.');
     } finally {
